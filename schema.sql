@@ -32,8 +32,8 @@ DROP TABLE IF EXISTS client CASCADE;
 CREATE TABLE client (
     client_id         INTEGER PRIMARY KEY,
     client_name       VARCHAR(50) NOT NULL,
-    email             VARCHAR(100) UNIQUE,
-    age               INTEGER CHECK (age BETWEEN 0 AND 120),
+    email             VARCHAR(100) UNIQUE NOT NULL,
+    birthday          DATE,
     sex               VARCHAR(20), -- not just male or female because intersex people exist
     phone_number      VARCHAR(20),
     payment_method    VARCHAR(30),
@@ -42,7 +42,8 @@ CREATE TABLE client (
 );
 
 CREATE TABLE trainer (
-    name                 VARCHAR(50) PRIMARY KEY,
+    trainer_id           INTEGER PRIMARY KEY,
+    name                 VARCHAR(50),
     phone                VARCHAR(20),
     email                VARCHAR(100) UNIQUE,
     years_of_experience  INTEGER CHECK (years_of_experience >= 0),
@@ -79,7 +80,7 @@ CREATE TABLE program_status (
     client_id                  INTEGER REFERENCES client(client_id),
     program_id                 INTEGER REFERENCES program(program_id),
     enrollment                 TIMESTAMP NOT NULL,
-    status                     VARCHAR(20) NOT NULL DEFAULT 'In progress'
+    status                     VARCHAR(20) NOT NULL DEFAULT 'In-progress'
                                CHECK (status IN ('In-progress', 'Completed', 'Dropped')),
     current_phase              INTEGER,
 	weekly_in_person_sessions  INTEGER CHECK (weekly_in_person_sessions >= 0),
@@ -142,18 +143,20 @@ CREATE TABLE session_plan (
 
 CREATE TABLE workout_session (
     client_id           INTEGER,
-    session_date        TIMESTAMP,
+    session_date        DATE,
     attended            BOOLEAN NOT NULL DEFAULT TRUE,
     start_time          TIME,
     end_time            TIME,
     current_program_id  INTEGER REFERENCES program(program_id),
+    phase_index         INTEGER REFERENCES program_phase(phase_index),
+    intake_date         TIMESTAMP,
+    trainer_id          INTEGER REFERENCES trainer(trainer_id),
     presession_notes    TEXT,
     postsession_notes   TEXT,
     PRIMARY KEY (client_id, session_date),
-    FOREIGN KEY (client_id, session_date)
-        REFERENCES session_plan(client_id, plan_date),
-    CONSTRAINT chk_ws_end_after_start
-        CHECK (end_time > start_time)
+    FOREIGN KEY (client_id, session_date) REFERENCES session_plan(client_id, plan_date),
+    FOREIGN KEY (client_id, intake_date) REFERENCES intake_info(client_id, intake_date),
+    CONSTRAINT chk_ws_end_after_start CHECK (end_time > start_time)
 );
 
 CREATE TABLE session_exercise_performed (
