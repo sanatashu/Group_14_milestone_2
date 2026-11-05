@@ -1,8 +1,8 @@
 -- 1. Create a schema for this lab (only runs once)
-CREATE SCHEMA IF NOT EXISTS lab6;
+CREATE SCHEMA IF NOT EXISTS group14project;
 
 -- 2. Tell PostgreSQL to use this schema by default
-SET search_path TO lab6;
+SET search_path TO group14project;
 
 -- 3. Safety header: drop old tables if they exist
 DROP TABLE IF EXISTS progress_checkin_entry_metric_measured CASCADE;
@@ -148,13 +148,14 @@ CREATE TABLE workout_session (
     start_time          TIME,
     end_time            TIME,
     current_program_id  INTEGER REFERENCES program(program_id),
-    phase_index         INTEGER REFERENCES program_phase(phase_index),
+    phase_index         INTEGER,
     intake_date         TIMESTAMP,
     trainer_id          INTEGER REFERENCES trainer(trainer_id),
     presession_notes    TEXT,
     postsession_notes   TEXT,
     PRIMARY KEY (client_id, session_date),
     FOREIGN KEY (client_id, session_date) REFERENCES session_plan(client_id, plan_date),
+	FOREIGN KEY (current_program_id, phase_index) REFERENCES program_phase(program_id, phase_index),
     FOREIGN KEY (client_id, intake_date) REFERENCES intake_info(client_id, intake_date),
     CONSTRAINT chk_ws_end_after_start CHECK (end_time > start_time)
 );
