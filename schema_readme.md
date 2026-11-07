@@ -1,1 +1,22 @@
-# Group_14_milestone_2
+# Group\_14\_milestone\_2
+
+| # | Decision | Alternative | Why |
+| --- | --- | --- | --- |
+| 1 | Added training days into  in a child table called program\_phase\_exercise\_day | A day column on program\_phase\_exercise table, or a list like "Tue, Thu" in one column | Jordan does the same exercises Tue and Thu, but we cannot put multiple values in one cell. A child table keeps one value per cell. |
+| 2 |A "side" column  in progress metric table | Separate metric or exercise names, e.g. "Balance L", "Balance R",  "Left Leg Balance", "Right Leg Balance" | A "side" column works for any future metric too, so we never have to invent “left” and “right” versions of names. |
+| 3 | Rep range split into rep_min and rep_max | Text such as "8-10", or a  rep integer | Sara write ranges into her notebook like 3x8–10. We chose this design so ranges could be checked and queried. |
+| 4 | client_name kept as one column | Split into first and last name | Sara writes ranges like 3x8–10. Two number columns let us check the range is valid and search by reps. |
+| 5 | Supertype/subtype tables for exercises and metrics (set-rep, timed, measured) | One wide table with columns for every type, mostly NULL | Each type has different attributes (weight and reps vs. seconds vs. a unit). Subtypes avoid NULL-heavy rows. |
+| 6 | Surrogate intake_id and checkin_id | Composite PK (client_id, date) | Intake and baseline dates were never recorded, and PK columns can't be NULL so using surrogate key makes more sense.&#32; |
+| 7 | Surrogate session_id, with UNIQUE (client_id, session_date) | Composite PK (client_id, session_date) | UNIQUE still blocks a duplicate session log. Every record has one session per client per day. Surrogate ids are easier to use with child tables. |
+| 8 | Exercise name as a natural PK | Surrogate exercise_id | Names are unique and readable in the seed |
+| 9 | ON DELETE CASCADE on detail rows like sets, session exercises, check in metrics, and phase exercises | RESTRICT | A detail row can't stand on its own. When a session is deleted, its exercises and sets go with it.&#32; |
+| 10 | ON DELETE RESTRICT on historical data like intake, program status, sessions, check ins | CASCADE | Deleting a client shouldn't delete all records on their workout log and progress records. |
+| 11 | ON DELETE RESTRICT + ON UPDATE CASCADE on every FK to exercise(name) | CASCADE on delete; or no update action | An exercise in use by logs can't be removed. A rename flows to every row, which needs every link in the chain. |
+| 12 | All dates use 2025 | 2026 | Some dates like Dec 15, 2026 would not have happened yet, so we decided to assume the year 2025 for all dates. |
+| 13 | Intake, enrollment and baseline dates left NULL | Use the first session date | These dates were not recorded and we do not want to invent data. |
+| 14 | Session date and time in separate DATE and TIME columns | One TIMESTAMP | Sam's session has no time; a timestamp would force a time, so date and time are separated instead. |
+| 15 | Program shorthand mapped to one name like "Squat" to Back Squat, "Row" to Barbell Row, etc. | Store names exactly as written | The log uses fuller names ("heavy back squats"). Using consistent naming lets plan and actual exercises be compared. |
+| 16 | "5x5 main lifts" that Sara prescribes are assumed to mean deadlifts. | Store "main lifts" exactly as written into program phase exercises | Which lifts are "main" aren't specified. |
+| 17 | Intake baselines stored as baseline check-ins with NULL date | Text in the intake notes | Want to keep each measurement comparable and searchable.&#32; |
+| 18 | Casey's +10 degrees overhead reach stored as measurement = 10, is_relative = TRUE | Store as an absolute angle | The +10 degrees represents a delta value but referenced no starting or end point, so we marked it as a relative value.|
