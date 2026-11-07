@@ -114,9 +114,9 @@ INSERT INTO program_status (client_id, program_id, enrollment_date, status, curr
 -- WORKOUT LOGS
 -----------------------------
 INSERT INTO workout_session(session_id, client_id, session_date, start_time, end_time, attendance_type, status, program_id, phase_index, trainer_id, presession_notes, postsession_notes) VALUES
-    (1, 1, '2023-10-16', '16:00', NULL, 'in-person', 'attended', 1, NULL, 1, 'Lower back tight from moving furniture over weekend. Skipping heavy back squats!', 'Great energy. Back didn''t bother him on deadlifts with belt. Stoked about 375x3!'),
-    (2, 4, '2023-10-18', NULL,    NULL, 'online',    'attended', NULL, NULL, 1, 'Logged from client email/text report.', 'Red Pen Note: Texted Sam for RDL hip hinge video before next week. Keep at 30 lbs until form checked.'),
-    (3, 2, '2023-10-19', '10:00', NULL, 'in-person', 'attended', 2, NULL, 1, 'R knee aching during lunge warmup.', 'Felt accomplished despite knee tweak. Reminded her to ice knee tonight!');
+    (1, 1, '2025-10-16', '16:00', NULL, 'in-person', 'attended', 1, NULL, 1, 'Lower back tight from moving furniture over weekend. Skipping heavy back squats!', 'Great energy. Back didn''t bother him on deadlifts with belt. Stoked about 375x3!'),
+    (2, 4, '2025-10-18', NULL,    NULL, 'online',    'attended', NULL, NULL, 1, 'Logged from client email/text report.', 'Red Pen Note: Texted Sam for RDL hip hinge video before next week. Keep at 30 lbs until form checked.'),
+    (3, 2, '2025-10-19', '10:00', NULL, 'in-person', 'attended', 2, NULL, 1, 'R knee aching during lunge warmup.', 'Felt accomplished despite knee tweak. Reminded her to ice knee tonight!');
 
 
 INSERT INTO session_exercise_performed (session_id, exercise_name, exercise_order, status, substituted_for, planned_sets, planned_reps, notes) VALUES
@@ -188,17 +188,17 @@ INSERT INTO progress_checkin_entry
     (2, 2, NULL, 'baseline', 2, NULL, 'Baseline assessment at intake.'),
     (3, 3, NULL, 'baseline', 3, NULL, 'Baseline assessment at intake.'),
     -- Jordan: Progress Tracker
-    (4, 2, '2023-11-03', 'progress', NULL, 1, NULL), -- Does the Check-in Header need to be inserted as part of the data as well? or is marking something as 'progress' ok?
-    (5, 2, '2023-11-17', 'progress', NULL, 3, NULL),
-    (6, 2, '2023-12-15', 'progress', NULL, 6, 'Down 8 lbs and 1.5 inches off waist & hips in 6 weeks! Jordan was glowing seeing scale & looser jeans. Needs visual proof to stay on track.'),
+    (4, 2, '2025-11-03', 'progress', NULL, 1, NULL), -- Does the Check-in Header need to be inserted as part of the data as well? or is marking something as 'progress' ok?
+    (5, 2, '2025-11-17', 'progress', NULL, 3, NULL),
+    (6, 2, '2025-12-15', 'progress', NULL, 6, 'Down 8 lbs and 1.5 inches off waist & hips in 6 weeks! Jordan was glowing seeing scale & looser jeans. Needs visual proof to stay on track.'),
     -- Alex: PR Record Page
-    (7,  1, '2023-08-14', 'pr', NULL, NULL, NULL),
-    (8,  1, '2023-09-10', 'pr', NULL, NULL, NULL),
-    (9,  1, '2023-10-16', 'pr', NULL, NULL, NULL),
-    (10, 1, '2023-10-30', 'pr', NULL, NULL, 'DL form clean, hips didn''t shoot up early. Huge milestone. Alex kept asking if we can graph this on a line chart!'),
+    (7,  1, '2025-08-14', 'pr', NULL, NULL, NULL),
+    (8,  1, '2025-09-10', 'pr', NULL, NULL, NULL),
+    (9,  1, '2025-10-16', 'pr', NULL, NULL, NULL),
+    (10, 1, '2025-10-30', 'pr', NULL, NULL, 'DL form clean, hips didn''t shoot up early. Huge milestone. Alex kept asking if we can graph this on a line chart!'),
     -- Casey: Tennis Conditioning Metrics
     (11, 5, NULL, 'baseline', NULL, NULL, 'Tennis Conditioning Metrics: baseline (date not recorded).'),
-    (12, 5, '2023-11-02', 'assessment', NULL, NULL, 'Tennis Conditioning Metrics. Casey reported: ''My serve feels faster and shoulder isn''t sore after 3 sets.'' Thrilled about court results!');
+    (12, 5, '2025-11-02', 'assessment', NULL, NULL, 'Tennis Conditioning Metrics. Casey reported: ''My serve feels faster and shoulder isn''t sore after 3 sets.'' Thrilled about court results!');
 
 
 -- Metric parent rows
