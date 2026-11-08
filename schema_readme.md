@@ -1,4 +1,6 @@
 # Group\_14\_milestone\_2
+#### These are our general design decisions.
+##### For more detailed design choices, please refer to schema_with_comments.sql and seed_data_with_comments.sql files.
 
 | # | Decision | Alternative | Why |
 | --- | --- | --- | --- |
