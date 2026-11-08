@@ -65,7 +65,6 @@ INSERT INTO program_phase_exercise (program_id, phase_index, exercise_name, note
     (3, 1, 'Glute Bridge',   'With band.'),
     (3, 1, 'Hamstring Curl', NULL);
 
--- Training days (multi-valued)
 INSERT INTO program_phase_exercise_day (program_id, phase_index, exercise_name, day_of_week) VALUES
     (1, 1, 'Back Squat', 'Mon'),
     (1, 1, 'Bench Press', 'Mon'),
@@ -80,7 +79,6 @@ INSERT INTO program_phase_exercise_day (program_id, phase_index, exercise_name, 
     (2, 1, 'Plank', 'Tue'), (2, 1, 'Plank', 'Thu'),
     (2, 1, 'Incline Treadmill Walk', 'Tue'), (2, 1, 'Incline Treadmill Walk', 'Thu');
 
--- Set/rep prescriptions
 INSERT INTO program_phase_exercise_set_rep (program_id, phase_index, exercise_name, set_count, rep_min, rep_max, per_side) VALUES
     (1, 1, 'Back Squat',        4,  8,  8, FALSE),
     (1, 1, 'Bench Press',       4,  8,  8, FALSE),
@@ -98,10 +96,9 @@ INSERT INTO program_phase_exercise_set_rep (program_id, phase_index, exercise_na
     (3, 1, 'Hamstring Curl',    3, 12, 12, FALSE);
 
 
--- Timed exercises (seconds)
 INSERT INTO program_phase_exercise_timed (program_id, phase_index, exercise_name, set_count, duration_seconds) VALUES
     (2, 1, 'Plank',3, 30),
-    (2, 1, 'Incline Treadmill Walk', NULL, 600),   -- 10 mins
+    (2, 1, 'Incline Treadmill Walk', NULL, 600),
     (3, 1, 'Spanish Squat', 3, 45);
 
 
@@ -136,7 +133,6 @@ INSERT INTO session_exercise_performed (session_id, exercise_name, exercise_orde
     (3, 'Seated Cable Row',   4, 'completed',   NULL,            NULL, NULL, NULL),
     (3, 'Incline Treadmill Walk', 5, 'completed', NULL,          NULL, NULL, NULL);
 
--- One row per set.
 INSERT INTO session_exercise_performed_set (session_id, exercise_name, set_count, reps, weight_lbs, note) VALUES
     -- Alex
     (1, 'KB Goblet Squat', 1, 10,  53, NULL),
@@ -176,7 +172,7 @@ INSERT INTO session_exercise_performed_set (session_id, exercise_name, set_count
     (3, 'Seated Cable Row',   3, 12,   50, NULL);
 
 INSERT INTO session_exercise_performed_timed (session_id, exercise_name, duration_seconds, speed_mph, incline_pct) VALUES
-    (3, 'Incline Treadmill Walk', 720, 3.2, 4.0);   -- 12 mins, 3.2 mph, 4% incline
+    (3, 'Incline Treadmill Walk', 720, 3.2, 4.0); 
 
 -----------------------------
 -- PROGRESS CHECK IN ENTRIES
@@ -188,7 +184,7 @@ INSERT INTO progress_checkin_entry
     (2, 2, NULL, 'baseline', 2, NULL, 'Baseline assessment at intake.'),
     (3, 3, NULL, 'baseline', 3, NULL, 'Baseline assessment at intake.'),
     -- Jordan: Progress Tracker
-    (4, 2, '2025-11-03', 'progress', NULL, 1, NULL), -- Does the Check-in Header need to be inserted as part of the data as well? or is marking something as 'progress' ok?
+    (4, 2, '2025-11-03', 'progress', NULL, 1, NULL), 
     (5, 2, '2025-11-17', 'progress', NULL, 3, NULL),
     (6, 2, '2025-12-15', 'progress', NULL, 6, 'Down 8 lbs and 1.5 inches off waist & hips in 6 weeks! Jordan was glowing seeing scale & looser jeans. Needs visual proof to stay on track.'),
     -- Alex: PR Record Page
@@ -223,7 +219,7 @@ INSERT INTO progress_checkin_entry_metric (checkin_id, metric_name, side, load_l
     (7,  'Deadlift',                         'n/a', NULL, NULL),
     (8,  'Bench Press',                      'n/a', NULL, NULL),
     (9,  'Deadlift',                         'n/a', NULL, NULL),
-    (10, 'Deadlift',                         'n/a', NULL, 'NEW PR!'), -- new PR note on the specifc metric
+    (10, 'Deadlift',                         'n/a', NULL, 'NEW PR!'),
     (10, 'Bench Press',                      'n/a', NULL, NULL),
     (11, 'Rotational Med-Ball Throw', 'n/a', 12, 'Baseline.'),  
     (12, 'Rotational Med-Ball Throw', 'n/a', 12, '+22% power'),
@@ -232,13 +228,12 @@ INSERT INTO progress_checkin_entry_metric (checkin_id, metric_name, side, load_l
     (12, 'Shoulder Mobility (overhead reach)', 'R', NULL, NULL);  
 
 
--- Strength results
 INSERT INTO progress_checkin_entry_metric_set_rep (checkin_id, metric_name, side, weight_lbs, reps) VALUES
     (1,  'Deadlift',    'n/a', 360, NULL),
     (7,  'Deadlift',    'n/a', 365, 1),
     (8,  'Bench Press', 'n/a', 225, 3),
     (9,  'Deadlift',    'n/a', 375, 3),
-    (10, 'Deadlift',    'n/a', 385, 1), -- this is the new pr record
+    (10, 'Deadlift',    'n/a', 385, 1),
     (10, 'Bench Press', 'n/a', 225, 5);
 
 
