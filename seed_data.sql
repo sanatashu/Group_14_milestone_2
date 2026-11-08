@@ -243,7 +243,7 @@ INSERT INTO progress_checkin_entry_metric_set_rep (checkin_id, metric_name, side
 
 
 -- Measurements
-INSERT INTO progress_checkin_entry_metric_measure (checkin_id, metric_name, side, measurement, unit, is_relative) VALUES
+INSERT INTO progress_checkin_entry_metric_measured (checkin_id, metric_name, side, measurement, unit, is_relative) VALUES
     (2,  'Body Weight', 'n/a', 192,  'lbs', FALSE),
     (2,  'Waist',       'n/a', 36,   'in',  FALSE),
     (2,  'Hips',        'n/a', 41,   'in',  FALSE),
