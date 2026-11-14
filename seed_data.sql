@@ -87,7 +87,7 @@ INSERT INTO program_phase_exercise_set_rep (program_id, phase_index, exercise_na
     (1, 1, 'Romanian Deadlift', 3, 10, 10, FALSE),
     (1, 1, 'Deadlift',          3,  5,  5, FALSE),
     (1, 1, 'Incline Press',     3,  8,  8, FALSE),
-	(1, 2, 'Deadlift',          3,  5,  5, FALSE), -- Interpreted from "5x5 main lifts"
+	(1, 2, 'Deadlift',          5,  5,  5, FALSE), -- Interpreted from "5x5 main lifts"
     (2, 1, 'Goblet Squat',      3, 10, 10, FALSE),
     (2, 1, 'Dumbbell Row',      3, 12, 12, FALSE),
     (2, 1, 'Push-up',           3,  8, 10, FALSE),

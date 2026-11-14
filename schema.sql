@@ -11,7 +11,6 @@ CREATE TABLE client (
     sex               VARCHAR(20),
     phone_number      VARCHAR(20),
 	CONSTRAINT check_client_email      CHECK (email LIKE '%@%'),
-	CONSTRAINT check_client_birth      CHECK (birthday >= DATE '1900-01-01'),
 	CONSTRAINT check_client_sex     CHECK (sex IN ('male','female','non-binary','undisclosed')),
 	CONSTRAINT check_client_phone_number      CHECK (phone_number ~ '^[0-9 ()-]{7,}$')
 );
