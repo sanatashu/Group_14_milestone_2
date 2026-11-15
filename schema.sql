@@ -46,10 +46,10 @@ CREATE TABLE program (
     program_type      VARCHAR(30) CHECK (program_type IN ('Beginner', 'Intermediate', 'Advanced', 'Rehab')),
     session_pricing   NUMERIC(8,2) CHECK (session_pricing >= 0),
     program_notes     TEXT,
-    duration_weeks    INTEGER NOT NULL CHECK (duration_weeks BETWEEN 1 AND 104), -- Lab 8 Q1.2: Sara states each program's length ("12-Week"), so it is stored as a fact of the program
-    planned_in_person_sessions INTEGER NOT NULL DEFAULT 0 CHECK (planned_in_person_sessions >= 0), -- Lab 8 Q1.2: moved from program_status. program_id -> weekly sessions was a partial dependency on program_status's (client_id, program_id) key (2NF)
+    duration_weeks    INTEGER NOT NULL, -- Lab 8 Q1.2: Sara states each program's length ("12-Week"), so it is stored as a fact of the program
+    planned_in_person_sessions INTEGER NOT NULL DEFAULT 0 CHECK (planned_in_person_sessions >= 0), -- Lab 8 Q1.2: moved from program_status. program_id -> weekly sessions was a partial dependency on program_status's (client_id, program_id) key
     planned_online_sessions    INTEGER NOT NULL DEFAULT 0 CHECK (planned_online_sessions >= 0),    -- moved from program_status with the column above
-    CONSTRAINT chk_weekly_sessions_max  -- moved from program_status with the session columns
+    CONSTRAINT check_weekly_sessions_max  -- moved from program_status with the session columns
         CHECK (planned_in_person_sessions + planned_online_sessions BETWEEN 1 AND 7)
 );
 
