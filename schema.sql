@@ -36,7 +36,8 @@ CREATE TABLE intake_info (
     health_notes  TEXT,
 	assessment_notes TEXT, -- Added column for baseline assessment notes
 	coaching_notes TEXT, -- Added column for coaching notes
-    UNIQUE (client_id, intake_date) --one intake per client per date
+    UNIQUE (client_id, intake_date), --one intake per client per date
+    UNIQUE (client_id, intake_id)    -- target for progress_checkin_entry's composite FK, so a check-in can only link to its own client's intake
 );
 
 CREATE TABLE program (
@@ -46,7 +47,7 @@ CREATE TABLE program (
     program_type      VARCHAR(30) CHECK (program_type IN ('Beginner', 'Intermediate', 'Advanced', 'Rehab')),
     session_pricing   NUMERIC(8,2) CHECK (session_pricing >= 0),
     program_notes     TEXT,
-    duration_weeks    INTEGER NOT NULL, -- Lab 8 Q1.2: Sara states each program's length ("12-Week"), so it is stored as a fact of the program
+    duration_weeks    INTEGER NOT NULL CHECK (duration_weeks >= 1), -- Lab 8 Q1.2: Sara states each program's length ("12-Week"), so it is stored as a fact of the program
     planned_in_person_sessions INTEGER NOT NULL DEFAULT 0 CHECK (planned_in_person_sessions >= 0), -- Lab 8 Q1.2: moved from program_status. program_id -> weekly sessions was a partial dependency on program_status's (client_id, program_id) key
     planned_online_sessions    INTEGER NOT NULL DEFAULT 0 CHECK (planned_online_sessions >= 0),    -- moved from program_status with the column above
     CONSTRAINT check_weekly_sessions_max  -- moved from program_status with the session columns
@@ -176,7 +177,7 @@ CREATE TABLE session_exercise_performed_set (
     -- session_date   TIMESTAMP, -- remove session_date because this fact would be stored twice
     exercise_name  VARCHAR(50),
     set_count      INTEGER NOT NULL CHECK (set_count >= 1),
-    reps           INTEGER,
+    reps           INTEGER CHECK (reps > 0), -- NULL is allowed: not recorded (Sam's stopped set 3)
 	weight_lbs	   NUMERIC(5,2) CHECK (weight_lbs > 0),
 	note		   TEXT, -- comment on set
 	set_status     VARCHAR(10) NOT NULL DEFAULT 'completed' CHECK (set_status IN ('completed', 'stopped')), -- Lab 8 Q3.3: records a set stopped early instead of implying it with NULL reps
@@ -205,10 +206,12 @@ CREATE TABLE progress_checkin_entry (
                   REFERENCES client(client_id) ON DELETE RESTRICT,
     checkin_date  DATE,                                         -- Add date, can be null
     checkin_type  VARCHAR(20) NOT NULL CHECK (checkin_type IN ('baseline', 'progress', 'pr', 'assessment')), -- Add to store checkin type 
-    intake_id     INTEGER     REFERENCES intake_info(intake_id) ON DELETE RESTRICT,  -- links baselines to intake
+    intake_id     INTEGER,                                      -- links baselines to intake (FK below)
     week_number   INTEGER    CHECK (week_number >= 1),         -- track information like "Nov 17 (Wk 3)" that Sara write in her noteboook
     notes         TEXT,
-    UNIQUE (client_id, checkin_date)                            -- made this unique, rather than the PK. one check-in per client per date
+    UNIQUE (client_id, checkin_date),                           -- made this unique, rather than the PK. one check-in per client per date
+    FOREIGN KEY (client_id, intake_id)                          -- was "intake_id REFERENCES intake_info(intake_id)", which let a check-in link to another client's intake
+        REFERENCES intake_info(client_id, intake_id) ON DELETE RESTRICT
 );
 
 CREATE TABLE progress_checkin_entry_metric (
