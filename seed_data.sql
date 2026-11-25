@@ -1,16 +1,26 @@
 SET search_path TO pt_studio_group_14;
 
+TRUNCATE TABLE
+    client, trainer, intake_info, exercise,
+    program, program_phase, program_status,
+    program_phase_exercise, program_phase_exercise_day,
+    program_phase_exercise_set_rep, program_phase_exercise_timed,
+    workout_session, session_exercise_performed,
+    session_exercise_performed_set, session_exercise_performed_timed,
+    progress_checkin_entry, progress_checkin_entry_metric,
+    progress_checkin_entry_metric_set_rep, progress_checkin_entry_metric_measured
+RESTART IDENTITY CASCADE;
 
 INSERT INTO trainer (trainer_id, name) VALUES
     (1, 'Sara');
 
 
-INSERT INTO client (client_id, client_name, email, phone_number) VALUES
-    (1, 'Alex M.',   'alex.m@email.com', '555-0192'),
-    (2, 'Jordan T.', NULL,               '555-0144'),
-    (3, 'Maya L.',   'maya.l@email.com', NULL),
-    (4, 'Sam R.',    NULL, NULL),
-    (5, 'Casey P.',  NULL, NULL);
+INSERT INTO client (client_id, client_name, email, phone_number, login_name) VALUES
+    (1, 'Alex M.',   'alex.m@email.com', '555-0192', 'g14_alex_demo'),
+    (2, 'Jordan T.', NULL,               '555-0144', NULL),
+    (3, 'Maya L.',   'maya.l@email.com', NULL,       NULL),
+    (4, 'Sam R.',    NULL, NULL,                     NULL),
+    (5, 'Casey P.',  NULL, NULL,                     NULL);
 
 INSERT INTO intake_info (intake_id, client_id, intake_date, age_at_intake, goal_notes, health_notes, assessment_notes, coaching_notes) VALUES
     (1, 1, NULL, 28, 'Increase bench/deadlift, build mass.', 'Lower back tight >90% 1RM.', 'Squat depth solid, bench setup good.', 'Tech-savvy & competitive.'),

@@ -86,8 +86,17 @@ ORDER BY last_session_date DESC;
 -- view 2: v_client_progress (for the client app)
 -- every row carries client_id. the app must filter on it (see the Decisions Log)
 -- no names, contact details, or notes of any kind are exposed
+-- the WHERE at the bottom decides which rows each login sees:
+--   * a client login sees only its own client's rows (client.login_name = current_user)
+--   * the schema owner and g14_trainer (Sara) see every client
+--   * any other login sees nothing
+-- current_user is the login running the query, even inside a view.
+-- security_barrier makes PostgreSQL apply this WHERE before any condition
+-- the user adds, so a user's own WHERE can't peek at other clients' rows.
 
 CREATE VIEW v_client_progress WITH (security_barrier = true) AS
+SELECT p.*
+FROM (
 
 -- body and fitness measurements from checkins
 SELECT e.client_id,
@@ -126,7 +135,14 @@ UNION ALL
 SELECT ws.client_id, 'cardio', ws.session_date, NULL,
        t.exercise_name, 'n/a', NULL, t.duration_seconds, 's', NULL, FALSE, NULL
 FROM workout_session ws
-JOIN session_exercise_performed_timed t ON t.session_id = ws.session_id;
+JOIN session_exercise_performed_timed t ON t.session_id = ws.session_id
+
+) p
+WHERE
+    p.client_id IN (SELECT c.client_id FROM client c WHERE c.login_name = current_user)
+    OR pg_has_role((SELECT nspowner FROM pg_namespace WHERE nspname = 'pt_studio_group_14'), 'USAGE')
+    OR EXISTS (SELECT 1 FROM pg_roles r
+               WHERE r.rolname = 'g14_trainer' AND pg_has_role(r.oid, 'USAGE'));
 
 -- sample 1
 SELECT record_date, metric_name, value, unit

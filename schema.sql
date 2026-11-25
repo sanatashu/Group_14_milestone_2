@@ -10,6 +10,7 @@ CREATE TABLE client (
     birthday          DATE,
     sex               VARCHAR(20), -- not just male or female because intersex people exist
     phone_number      VARCHAR(20),
+    login_name        VARCHAR(63) UNIQUE, -- database login of a client who uses the app; UNIQUE so one login can't see two clients
 	CONSTRAINT check_client_email      CHECK (email LIKE '%@%'),
 	CONSTRAINT check_client_birth      CHECK (birthday >= DATE '1900-01-01'),
 	CONSTRAINT check_client_sex     CHECK (sex IN ('male','female','non-binary','undisclosed')),

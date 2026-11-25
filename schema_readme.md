@@ -1,9 +1,13 @@
 # Group 14 milestone 3
-#### These are our general design decisions.
-##### For more detailed design choices, please refer to schema_with_comments.sql and seed_data_with_comments.sql files.
 
-| #   | Decision                                                                                                                 | Alternative                                                                                                | Why                                                                                                                                              |
-| --- | ------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+
+#### Run order
+schema.sql → seed_data.sql → queries.sql → views.sql → procedural.sql → access_control.sql → transaction_demo.sql
+
+#### These are our general design decisions.
+
+| #   | Decision | Alternative  | Why  |
+| --- | --- | ---- | ---- |
 | 1   | Added training days into  in a child table called program\_phase\_exercise\_day                                          | A day column on program\_phase\_exercise table, or a list like "Tue, Thu" in one column                    | Jordan does the same exercises Tue and Thu, but we cannot put multiple values in one cell. A child table keeps one value per cell.               |
 | 2   | A "side" column  in progress metric table                                                                                | Separate metric or exercise names, e.g. "Balance L", "Balance R",  "Left Leg Balance", "Right Leg Balance" | A "side" column works for any future metric too, so we never have to invent “left” and “right” versions of names.                                |
 | 3   | Rep range split into rep_min and rep_max                                                                                 | Text such as "8-10", or a  rep integer                                                                     | Sara writes ranges into her notebook like 3x8–10. We chose this design so ranges could be checked and queried.                                    |
@@ -11,7 +15,7 @@
 | 5   | Supertype/subtype tables for exercises and metrics (set-rep, timed, measured)                                            | One wide table with columns for every type, mostly NULL                                                    | Each type has different attributes (weight and reps vs. seconds vs. a unit). Subtypes avoid NULL-heavy rows.                                     |
 | 6   | Surrogate intake_id and checkin_id                                                                                       | Composite PK (client_id, date)                                                                             | Intake and baseline dates were never recorded, and PK columns can't be NULL so using surrogate key makes more sense.&#32;                        |
 | 7   | Surrogate session_id, with UNIQUE (client_id, session_date)                                                              | Composite PK (client_id, session_date)                                                                     | UNIQUE still blocks a duplicate session log. Every record has one session per client per day. Surrogate ids are easier to use with child tables. |
-| 8   | Exercise name as a natural PK                                                                                            | Surrogate exercise_id                                                                                      | Names are unique and readable in the seed                                                                                                        |
+| 8   | Exercise name as a natural PK | Surrogate exercise_id  | Names are unique and readable in the seed  |
 | 9   | ON DELETE CASCADE on detail rows like sets, session exercises, check in metrics, and phase exercises                     | RESTRICT                                                                                                   | A detail row can't stand on its own. When a session is deleted, its exercises and sets go with it.&#32;                                          |
 | 10  | ON DELETE RESTRICT on historical data like intake, program status, sessions, check ins                                   | CASCADE                                                                                                    | Deleting a client shouldn't delete all records on their workout log and progress records.                                                        |
 | 11  | ON DELETE RESTRICT + ON UPDATE CASCADE on every FK to exercise(name)                                                     | CASCADE on delete; or no update action                                                                     | An exercise in use by logs can't be removed. A rename flows to every row, which needs every link in the chain.                                   |
@@ -39,3 +43,51 @@
 | 8   | Moved weekly_in_person_sessions and weekly_online_sessions from program_status to program, renamed to planned_in_person_sessions and planned_online_sessions (NOT NULL DEFAULT 0). check_weekly_sessions_max moved with them and is now between 1 and 7. | Lab 8 Q1.2 had to group by enrollment columns to get sessions per week, which would list a program twice if two clients enrolled on different schedules. Planned sessions depend on program_id alone, a partial dependency on program_status's (client_id, program_id) key. | Lab 8 |
 | 9   | Seed: restored "Goal: Test DL PR 385+ lbs." to the notes for Alex's Phase 3 (program_phase) | This goal from Sara's notes had dropped out of the seed when the targets were moved into phase notes.| Own finding |
 | 10  | progress_checkin_entry.intake_id: the single-column FK to intake_info(intake_id) was replaced by a composite FK (client_id, intake_id) REFERENCES intake_info(client_id, intake_id), and UNIQUE (client_id, intake_id) was added to intake_info | The old FK only checked that the intake existed, not that it belonged to the same client, so Jordan's baseline could be linked to Alex's intake. The composite FK enforces the business rule, the same way workout_session's (client_id, program_id) FK checks that the client is enrolled. UNIQUE (client_id, intake_id) gives the FK a key to reference. A NULL intake_id is still allowed, since Casey's baseline has no intake page. The seed already followed this rule, so no data changed. | Own finding |
+
+
+## New decisions in Milestone 3
+
+### Part 2: Views
+| #   | Decision | Alternative | Why |
+| --- | -------- | ----------- | --- |
+| --- | -------- | ----------- | --- |
+
+
+### Part 3: Access control
+| #   | Decision | Alternative | Why |
+| --- | -------- | ----------- | --- |
+| 26  | Two NOLOGIN roles (g14_trainer, g14_client_app) hold all privileges; the demo users only get membership | Grant privileges to each user directly | A new trainer or client account needs one GRANT, and accounts with the same job can't drift apart. |
+| 27  | Both roles get USAGE on the schema, not CREATE; neither owns any object | Also grant CREATE | USAGE is needed to reach any object. CREATE would let them add tables. Without ownership, Sara can't ALTER or DROP anything (tested during development: "must be owner of table client"). |
+| 28  | Trainer: SELECT, INSERT, UPDATE on client, intake_info, program, program_status, exercise. No DELETE | Full SELECT/INSERT/UPDATE/DELETE | Sara records and corrects these, including the health notes she reads before a session. History hangs off them (rows 10 and 11), and real changes are UPDATEs: leaving a program is status 'Dropped', and a renamed exercise cascades (row 11). DELETE could still remove a client who has no history yet, losing the record. |
+| 29  | Trainer: SELECT only on trainer | Also INSERT and UPDATE | Sara needs trainer_id to log a session. Adding or editing staff is an admin job. |
+| 30  | Trainer: SELECT, INSERT, UPDATE, DELETE on plan details (program_phase and its 4 child tables), workout logs (workout_session and its 3 child tables) and check-ins (progress_checkin_entry and its 3 child tables) | No DELETE, as for master records | These rows record events or plan details. Sara redesigns phases and fixes entry mistakes by editing or removing a row. Deleting a session cascades to its exercises and sets (row 9). |
+| 31  | Privileges are listed one by one, never GRANT ALL | GRANT ALL | ALL also grants TRUNCATE, REFERENCES and TRIGGER. TRUNCATE skips row-level DELETE triggers, so it could empty the workout tables without the Part 4 log recording it. |
+| 32  | Trainer: SELECT on both views | v_session_brief only | She reads the brief before each session, and v_client_progress shows her exactly what a client sees in the app. |
+| 33  | Client app: SELECT on v_client_progress only, and nothing on any table or on v_session_brief | SELECT on the progress tables | A view reads its tables with its owner's privileges, so the app gets progress rows without reaching health notes, Sara's notes or contact details (tested: "permission denied for table intake_info"). |
+| 34  | No self-logging: the client app gets no INSERT on the workout tables | INSERT only on workout_session and its 3 child tables | Sara already enters online clients' reports herself (Sam's session: "Logged from client email/text report"). With INSERT, a client could add sessions for any client_id. The login link only filters what the view shows; the tables have no row-level security to stop a write for another client. |
+| 35  | workout_set_change_log: trainer gets SELECT and INSERT, no UPDATE, DELETE or TRUNCATE. The trigger function stays SECURITY INVOKER | A SECURITY DEFINER trigger function, with no INSERT on the log | Under SECURITY DEFINER, current_user inside the trigger is the owner, so the log no longer shows who made the change. Under SECURITY INVOKER, the trigger inserts as Sara, so without INSERT her own corrections fail. With the grant, her correction is logged as g14_sara_demo, and DELETE and UPDATE on the log are refused. log_id is IDENTITY, which needs no sequence grant. The client app gets nothing on the log. |
+| 36  | EXECUTE on every function in the schema is revoked from PUBLIC | Keep PostgreSQL's default | By default PUBLIC can execute every new function, so the client app could call them. The trigger still fires for Sara, because a trigger function's EXECUTE privilege is checked only at CREATE TRIGGER. |
+| 37  | The clean-up runs DROP OWNED BY on each existing g14_ role before DROP ROLE IF EXISTS | REVOKE ALL on the tables, sequences, functions and schema of pt_studio_group_14 | REVOKE ALL only covers the objects it names. A grant left in another schema (tested during development with a lab schema) made DROP ROLE fail with "some objects depend on it" and broke the rerun. DROP OWNED BY removes every privilege in the database. It also drops objects the role owns, which is safe because these roles can't create any (row 27). |
+
+### Part 4A: Change-log trigger
+
+| #   | Decision | Alternative | Why |
+| --- | -------- | ----------- | --- |
+| 38  | The trigger is on session_exercise_performed_set | On session_exercise_performed, or on every workout table | Sets hold the values Sara corrects after a session (reps and load), which the brief names. Exercise-level changes such as a status or substitution are not logged (Known Issue 6). |
+| 39  | Each log row stores the action, changed_at, changed_by, the set's key (session_id, exercise_name, set_count), and old and new reps, weight_lbs and set_status | The whole row as JSONB; also the set's note | These are the values that make up the training record, and set_status shows a set marked stopped. Separate columns can be queried and compared directly. The note is free-text commentary, not a result, so it is left out. |
+| 40  | AFTER INSERT OR UPDATE OR DELETE, FOR EACH ROW | A BEFORE trigger; FOR EACH STATEMENT | AFTER logs only changes that passed every CHECK and foreign key. A row-level trigger writes one log row per set and can read OLD and NEW; a statement-level trigger can't see the values. |
+| 41  | An UPDATE that changes nothing (OLD IS NOT DISTINCT FROM NEW) is not logged | Log every UPDATE | Setting a value to itself is not a change, and logging it would fill the log with noise. IS NOT DISTINCT FROM treats two NULLs as equal, so Sam's stopped set with NULL reps compares correctly. |
+| 42  | No foreign key from the log to the set table. log_id is GENERATED ALWAYS AS IDENTITY, and changed_by defaults to current_user. procedural.sql drops and recreates the log on each run | A foreign key to the set table; a plain INTEGER key; keep the log across reruns | A deleted set's log rows must survive, and a foreign key would block or cascade that delete. GENERATED ALWAYS stops anyone typing their own log_id. Recreating the log lets a rerun rebuild the same result, as the brief requires. A real system would never drop it. |
+| 43  | The trigger function is SECURITY INVOKER with SET search_path = pt_studio_group_14 | SECURITY DEFINER; rely on the caller's search_path | SECURITY INVOKER keeps current_user as the person making the change (row 35). Sara's own login may not have this schema on its path, so the function sets it. Tested in development with search_path = public: her change was still logged. |
+
+## Known Issues
+
+| #   | Issue |
+| --- | ----- |
+| 1   | Each client needs their own database login, with client.login_name set to exactly that role name (lowercase, since PostgreSQL folds unquoted names). Only Alex has one, so Jordan, Maya, Sam and Casey can't use the app yet. An app that connects every client through one shared login would see no rows. |
+| 2   | Clients can't log their own workouts (row 34). Online reports still go through Sara. |
+| 3   | Sara can INSERT a hand-written row into the change log (row 35), but she can't edit or delete one. Alternative: a SECURITY DEFINER trigger that records session_user. That shows the real login in normal use, but under SET ROLE tests it shows the script runner instead. |
+| 4   | The demo users' passwords are written in plain text in access_control.sql. Real accounts would be created outside the script. |
+| 5   | The log records a set's key after an UPDATE. If an exercise rename cascades into the set table (row 11), the old exercise_name is not recorded. |
+| 6   | Only sets are logged. Changes to session_exercise_performed (status, substitution, planned sets) and to cardio in session_exercise_performed_timed are not. |
+| 7   | TRUNCATE skips row-level triggers, so the seed's TRUNCATE is not logged. Sara has no TRUNCATE privilege (row 31). Rerunning seed_data.sql on its own after procedural.sql logs its 33 set INSERTs. |
