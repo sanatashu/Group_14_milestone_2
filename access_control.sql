@@ -87,6 +87,7 @@ GRANT SELECT ON v_session_brief, v_client_progress TO g14_trainer;
 GRANT SELECT, INSERT ON workout_set_change_log TO g14_trainer;
 
 REVOKE EXECUTE ON ALL FUNCTIONS IN SCHEMA pt_studio_group_14 FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION fn_plan_next_session(INTEGER, DATE, TIME, VARCHAR) TO g14_trainer;
 
 -- ---------------------------------------------------------------------
 -- GRANTS FOR G14_CLIENT_APP
@@ -124,6 +125,13 @@ DELETE FROM workout_set_change_log;
 UPDATE workout_set_change_log SET changed_by = 'someone_else';
 -- Expected error (intentional): ERROR: permission denied for table workout_set_change_log
 
+-- Sara plans
+SELECT fn_plan_next_session(4, DATE '2025-10-25', NULL, 'online') AS new_session_id;
+-- Expected: 6
+
+DELETE FROM workout_session WHERE client_id = 4 AND session_date = DATE '2025-10-25';
+-- Expected: DELETE 1
+
 RESET ROLE;
 
 
@@ -141,5 +149,9 @@ ORDER BY record_type;
 -- Test that is refused: the client app can't read health notes.
 SELECT health_notes FROM intake_info;
 -- Expected error: "ERROR: permission denied for table intake_info"
+
+-- Client refused
+SELECT fn_plan_next_session(1, DATE '2025-11-01', NULL, 'online');
+-- Expected error: permission denied for function fn_plan_next_session
 
 RESET ROLE;

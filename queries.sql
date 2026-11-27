@@ -52,6 +52,7 @@ SELECT
 	FROM workout_session ws
 	JOIN client c ON c.client_id = ws.client_id
 	LEFT JOIN session_exercise_performed_set s ON s.session_id = ws.session_id
+	WHERE ws.status = 'attended'
 	GROUP BY ws.session_id, c.client_name, ws.session_date
 	ORDER BY ws.session_date, c.client_name;
 
@@ -146,7 +147,7 @@ SELECT
 	FROM client c
 	JOIN workout_session ws ON ws.client_id = c.client_id
 	JOIN session_exercise_performed sep ON sep.session_id = ws.session_id
-	WHERE sep.status <> 'completed'
+	WHERE ws.status = 'attended' AND sep.status NOT IN ('completed', 'planned')
 	GROUP BY c.client_name, sep.exercise_name, sep.status, sep.substituted_for
 	HAVING COUNT(*) >= 1
 	ORDER BY times_changed DESC, c.client_name, sep.exercise_name;

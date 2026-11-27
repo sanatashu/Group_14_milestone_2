@@ -160,7 +160,7 @@ CREATE TABLE session_exercise_performed (
     -- session_date   TIMESTAMP, removed because it is already stored in the workout_session parent table.
     exercise_name  VARCHAR(50) REFERENCES exercise(name) ON DELETE RESTRICT ON UPDATE CASCADE,
 	exercise_order INTEGER NOT NULL CHECK (exercise_order >= 1),
-	status			VARCHAR(20) NOT NULL DEFAULT 'completed' CHECK (status IN ('completed', 'substituted', 'scratched', 'stopped')), -- Lab 8 Q3.3: added 'stopped' for an exercise cut short partway (Sam's Dumbbell RDL)
+	status			VARCHAR(20) NOT NULL DEFAULT 'completed' CHECK (status IN ('completed', 'substituted', 'scratched', 'stopped', 'planned')), -- Lab 8 Q3.3: added 'stopped' for an exercise cut short partway (Sam's Dumbbell RDL)
 	substituted_for VARCHAR(50) REFERENCES exercise(name) ON DELETE RESTRICT ON UPDATE CASCADE,
 	planned_sets 	INTEGER	CHECK (planned_sets > 0),
 	planned_reps	INTEGER CHECK (planned_reps > 0),

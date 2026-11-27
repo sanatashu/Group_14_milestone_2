@@ -60,13 +60,13 @@ LEFT JOIN LATERAL (
 -- exercises changed in that session (anything that wasn't completed as planned)
 LEFT JOIN LATERAL (
     SELECT
-        COUNT(*) FILTER (WHERE sep.status <> 'completed') AS exercises_changed,
+        COUNT(*) FILTER (WHERE sep.status NOT IN ('completed', 'planned')) AS exercises_changed,
         string_agg(
             sep.exercise_name || ' (' || sep.status ||
             CASE WHEN sep.substituted_for IS NOT NULL
                  THEN ' for ' || sep.substituted_for ELSE '' END || ')',
             '; ' ORDER BY sep.exercise_order
-        ) FILTER (WHERE sep.status <> 'completed') AS changes
+        ) FILTER (WHERE sep.status NOT IN ('completed', 'planned')) AS changes
     FROM session_exercise_performed sep
     WHERE sep.session_id = ls.session_id
 ) ch ON TRUE;
@@ -129,6 +129,7 @@ SELECT ws.client_id, 'workout_set', ws.session_date, NULL,
        s.reps, FALSE, s.set_status
 FROM workout_session ws
 JOIN session_exercise_performed_set s ON s.session_id = ws.session_id
+WHERE ws.status = 'attended'
 UNION ALL
 
 -- cardio work in the client's own sessions
@@ -136,6 +137,7 @@ SELECT ws.client_id, 'cardio', ws.session_date, NULL,
        t.exercise_name, 'n/a', NULL, t.duration_seconds, 's', NULL, FALSE, NULL
 FROM workout_session ws
 JOIN session_exercise_performed_timed t ON t.session_id = ws.session_id
+WHERE ws.status = 'attended'
 
 ) p
 WHERE
